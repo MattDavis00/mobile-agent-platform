@@ -9,7 +9,7 @@ function defaultMain(state, args) {
 }
 
 function defaultInit(state, args) {
-    console.log("Ran init!!!!!!!!!!!")
+    console.log("Running init.....")
     state.ttl--;
     state.main();
 }
@@ -17,7 +17,7 @@ function defaultInit(state, args) {
 function defaultStop(state, args) {
     const date = new Date();
     const time = date.toLocaleTimeString();
-    console.log(`${time}: Stopping ${state.name} on node ${state.nodePath[state.currentNode]} with id ${state.currentNode}`);
+    state.output(`Stopping ${state.name} on node ${state.nodePath[state.currentNode]} with id ${state.currentNode}`);
 
     // Clear all currently running intervals
     state.intervals.forEach((element) => {
@@ -68,23 +68,24 @@ function Agent({
                 payload: serialize(this)
             })
             .then((res) => {
-                console.log(`statusCode: ${res.statusCode}`)
-                console.log(res)
+                // console.log(`statusCode: ${res.status}`)
             })
             .catch((error) => {
                 console.error(error)
             })
         },
+        dispatch: () => agent.move(), //Dispatch is currently an alias for move
         output: function(text) {
             const url = `${this.supervisor.endpoint}/console`;
-            console.log(url)
+            const time = new Date().toLocaleTimeString();
+            console.log(`state.output: Worker${this.currentNode} - ${time} | ${text}`);
 
             axios.post(url, {
                 text,
                 workerID: this.currentNode
             })
             .then((res) => {
-                console.log(`statusCode: ${res.statusCode}`)
+                // console.log(`statusCode: ${res.status}`)
             })
             .catch((error) => {
                 console.error(error)

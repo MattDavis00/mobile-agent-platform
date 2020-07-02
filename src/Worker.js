@@ -37,14 +37,11 @@ function Worker(port = 4000) {
 
         agents.push(payload);
 
-        console.log(data.payload)
-        console.log(payload)
-
         // TODO: Verifiy integrity of payload and that it came from a known source.
         const agent = agents[agents.length - 1];
         agent.init(agent);
 
-        res.send();
+        res.sendStatus(200);
 
     })
 
