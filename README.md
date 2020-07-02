@@ -13,12 +13,13 @@ const {Supervisor, Agent} = require('mobile-agent-platform');
 
 const port = 3000
 
-//Create a new supervisor that listens on http://localhost:3000
+//Create a new supervisor that listens on http://192.168.100.0:3000
 const supervisor = Supervisor("192.168.100.0", port);
 
-// Creates a new agent that prints a message every second using the state.output method.
+// Creates a new agent that prints a message every second using state.output
 let agent = Agent({
     supervisor,
+    // A friendly name for the Agent
     name: "Example Agent",
     // The path that the agent will follow
     nodePath: [
@@ -28,6 +29,7 @@ let agent = Agent({
         'http://192.168.100.4:4000/agent',
         'http://192.168.100.5:4000/agent'
     ],
+    // The main method that gets called when the Agent is initialized
     main: (state, args) => {
         //Output every second
         state.setInterval(() => {
@@ -51,7 +53,7 @@ const { Worker } = require('mobile-agent-platform');
 
 //Create a new Worker node that listens on port 4000 by default.
 //Can be changed using Worker(portNum)
-//Will accept Agents trying to move to this Worker and will handle reinitialising the Agent.
+//Will accept Agents trying to move to this Worker and will handle reinitializing the Agent.
 let worker = Worker();
 ```
 
