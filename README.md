@@ -37,8 +37,8 @@ let agent = Agent({
             state.output(`Running ${state.name} on node ${state.nodePath[state.currentNode]} with id ${state.currentNode}`);
         }, 1000)
 
-        //Move to the next node after 5 seconds
-        state.setTimeout(() => state.move(), 5000);
+        //Move to the next node after 2 seconds
+        state.setTimeout(() => state.move(), 2000);
     }
 });
 
