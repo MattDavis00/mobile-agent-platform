@@ -50,7 +50,7 @@ function Agent({
             this.methods.main(this, args);
         },
         move: function() {
-            this.currentNode++;
+            this.currentNode = this.currentNode + 1 % nodePath.length;
     
             const nextNode = this.nodePath[this.currentNode];
             axios.post(nextNode, {
