@@ -1,5 +1,6 @@
 const axios = require('axios');
 const serialize = require('serialize-javascript');
+
 const Supervisor = require('./Supervisor');
 
 function defaultMain(state, args) {
@@ -22,6 +23,12 @@ function defaultStop(state, args) {
     state.intervals.forEach((element) => {
         clearInterval(element);
     });
+    state.intervals = [];
+
+    state.timeouts.forEach((element) => {
+        clearTimeout(element);
+    });
+    state.timeouts = [];
 }
 
 function Agent({
@@ -45,14 +52,17 @@ function Agent({
         currentNode: -1,
         ttl: 10,
         intervals: [],
-        main: function wrapper(...args) {
-            wrapper.bind(this);
+        timeouts: [],
+        main: function(...args) {
             this.methods.main(this, args);
         },
         move: function() {
-            this.currentNode = (this.currentNode + 1) % nodePath.length;
+            this.currentNode = (this.currentNode + 1) % this.nodePath.length;
     
             const nextNode = this.nodePath[this.currentNode];
+
+            this.stop();
+
             axios.post(nextNode, {
                 token: "AReallyLongRandomAndUniqueTokenForAuth",
                 payload: serialize(this)
@@ -60,7 +70,21 @@ function Agent({
             .then((res) => {
                 console.log(`statusCode: ${res.statusCode}`)
                 console.log(res)
-                this.stop();
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+        },
+        output: function(text) {
+            const url = `${this.supervisor.endpoint}/console`;
+            console.log(url)
+
+            axios.post(url, {
+                text,
+                workerID: this.currentNode
+            })
+            .then((res) => {
+                console.log(`statusCode: ${res.statusCode}`)
             })
             .catch((error) => {
                 console.error(error)
@@ -70,12 +94,14 @@ function Agent({
             const intervalID = setInterval(callback, interval);
             this.intervals.push(intervalID);
         },
-        init: function wrapper(...args) {
-            wrapper.bind(this);
+        setTimeout: function(callback, delay) {
+            const timeoutID = setTimeout(callback, delay);
+            this.timeouts.push(timeoutID);
+        },
+        init: function(...args) {
             this.methods.init(this, args)
         },
-        stop: function wrapper(...args) {
-            wrapper.bind(this);
+        stop: function(...args) {
             this.methods.stop(this, args)
         },
     }

@@ -6,7 +6,7 @@ Install:
 `npm i mobile-agent-platform`
 
 ## Example Usage:
-### Supervisor:
+### Supervisor Node:
 
 ```javascript
 const {Supervisor, Agent} = require('mobile-agent-platform');
@@ -29,7 +29,7 @@ let agent = Agent({
 agent.move(); //Start the Agent
 ```
 
-### Worker:
+### Worker Nodes:
 
 ```javascript
 const { Worker } = require('mobile-agent-platform');

@@ -1,4 +1,6 @@
 const express = require('express');
+const axios = require('axios');
+const serialize = require('serialize-javascript');
 
 function deserialize(serializedJavascript){
     return eval('(' + serializedJavascript + ')');
@@ -41,6 +43,8 @@ function Worker(port = 4000) {
         // TODO: Verifiy integrity of payload and that it came from a known source.
         const agent = agents[agents.length - 1];
         agent.init(agent);
+
+        res.send();
 
     })
 
