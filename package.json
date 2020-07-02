@@ -1,0 +1,27 @@
+{
+  "name": "mobile-agent-platform",
+  "version": "1.0.0",
+  "description": "A JavaScript Mobile Agent Platform that allows an agent to migrate across a network.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MattDavis00/mobile-agent-platform.git"
+  },
+  "keywords": [
+    "mobile",
+    "mobile agent platform",
+    "mobile code",
+    "mobile agent",
+    "platform",
+    "agent"
+  ],
+  "author": "Matt Davis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MattDavis00/mobile-agent-platform/issues"
+  },
+  "homepage": "https://github.com/MattDavis00/mobile-agent-platform#readme"
+}
