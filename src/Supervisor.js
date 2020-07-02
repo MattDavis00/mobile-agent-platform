@@ -24,7 +24,10 @@ function Supervisor(ip = "localhost", port = 3000, protocol = "http://") {
 
         const date = new Date();
         const time = date.toLocaleTimeString();
-        console.log(`Worker${workerID} - ${time} | ${text}`)
+        if(workerID >= 0)
+            console.log(`Worker ${workerID} - ${time} | ${text}`)
+        else
+            console.log(`Supervisor - ${time} | ${text}`)
 
         res.sendStatus(200);
     })

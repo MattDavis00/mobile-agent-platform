@@ -80,3 +80,43 @@ Worker2 - 18:49:40 | Running Example Agent on node http://192.168.100.3:4000/age
 ......
 Path is cyclic in nature by default
 ```
+
+## Persistent Store Example:
+
+`state.declareStore({key: value, key: value, key: value})` can be used to declare a new variable that will persist across nodes.
+`state.store.key` can be used to access and/or mutate these values once declared.
+
+```javascript
+let agent = Agent({
+    supervisor,
+    name: "Example Agent",
+    // The path that the agent will follow
+    nodePath: ['http://localhost:4000/agent', 'http://localhost:4001/agent', 'http://localhost:4002/agent', 'http://localhost:4003/agent', 'http://localhost:4004/agent'],
+    main: (state, args) => {
+        //Declare as many variables as you like
+        //Will declare if the key is undefined, otherwise it will not mutate the value.
+        state.declareStore({counter: 0, anotherVariable: "Another Value"});
+        
+        //Increment counter and output every second
+        state.setInterval(() => {
+            state.store.counter++;
+            //Output to the Supervisor node console
+            state.output(`Counter: ${state.store.counter}`);
+        }, 1000)
+
+        //Move to the next node after 2 seconds
+        state.setTimeout(() => state.move(), 2000);
+    }
+});
+```
+
+```
+Supervisor listening at http://localhost:3000
+Supervisor - 20:12:31 | Dispatching Example Agent from supervisor node http://localhost:3000
+Worker 0 - 20:12:32 | Counter: 1
+Worker 0 - 20:12:33 | Stopping Example Agent on node http://localhost:4000/agent
+Worker 1 - 20:12:34 | Counter: 2
+Worker 1 - 20:12:35 | Stopping Example Agent on node http://localhost:4001/agent
+Worker 2 - 20:12:36 | Counter: 3
+Worker 2 - 20:12:37 | Stopping Example Agent on node http://localhost:4002/agent
+```

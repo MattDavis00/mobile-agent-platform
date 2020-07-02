@@ -10,14 +10,16 @@ function defaultMain(state, args) {
 
 function defaultInit(state, args) {
     console.log("Running init.....")
-    state.ttl--;
     state.main();
 }
 
 function defaultStop(state, args) {
     const date = new Date();
     const time = date.toLocaleTimeString();
-    state.output(`Stopping ${state.name} on node ${state.nodePath[state.currentNode]} with id ${state.currentNode}`);
+    if (state.currentNode >= 0)
+        state.output(`Stopping ${state.name} on node ${state.nodePath[state.currentNode]}`);
+    else
+        state.output(`Dispatching ${state.name} from supervisor node ${state.supervisor.endpoint}`);
 
     // Clear all currently running intervals
     state.intervals.forEach((element) => {
@@ -50,18 +52,23 @@ function Agent({
         name,
         nodePath,
         currentNode: -1,
-        ttl: 10,
         intervals: [],
         timeouts: [],
+        store: {}, //Persistent store for developers variables, objects, etc.
+        declareStore: function(pairs) { //Declare a variable to the set value if not already defined.
+            for (const [key, value] of Object.entries(pairs)) {
+                if(typeof this.store[key] === "undefined")
+                    this.store[key] = value;
+            }
+        },
         main: function(...args) {
             this.methods.main(this, args);
         },
         move: function() {
-            this.currentNode = (this.currentNode + 1) % this.nodePath.length;
-    
-            const nextNode = this.nodePath[this.currentNode];
-
             this.stop();
+            
+            this.currentNode = (this.currentNode + 1) % this.nodePath.length;
+            const nextNode = this.nodePath[this.currentNode];
 
             axios.post(nextNode, {
                 token: "AReallyLongRandomAndUniqueTokenForAuth",
@@ -78,7 +85,8 @@ function Agent({
         output: function(text) {
             const url = `${this.supervisor.endpoint}/console`;
             const time = new Date().toLocaleTimeString();
-            console.log(`state.output: Worker${this.currentNode} - ${time} | ${text}`);
+            if(this.currentNode >= 0)
+                console.log(`state.output: Worker${this.currentNode} - ${time} | ${text}`);
 
             axios.post(url, {
                 text,
