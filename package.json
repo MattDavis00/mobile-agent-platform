@@ -23,5 +23,10 @@
   "bugs": {
     "url": "https://github.com/MattDavis00/mobile-agent-platform/issues"
   },
-  "homepage": "https://github.com/MattDavis00/mobile-agent-platform#readme"
+  "homepage": "https://github.com/MattDavis00/mobile-agent-platform#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "express": "^4.17.1",
+    "serialize-javascript": "^4.0.0"
+  }
 }
