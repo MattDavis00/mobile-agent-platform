@@ -35,6 +35,7 @@ function Agent({
         init = defaultInit,
         stop = defaultStop,
         nodePath = [],
+        methods = {},
     }) {
 
     let agent = {
@@ -42,6 +43,7 @@ function Agent({
             main,
             init,
             stop,
+            ...methods
         },
         supervisor, //Information about the supervisor
         name,
