@@ -14,12 +14,7 @@ function defaultInit(state, args) {
 }
 
 function defaultStop(state, args) {
-    const date = new Date();
-    const time = date.toLocaleTimeString();
-    if (state.currentNode >= 0)
-        state.output(`Stopping ${state.name} on node ${state.nodePath[state.currentNode]}`);
-    else
-        state.output(`Dispatching ${state.name} from supervisor node ${state.supervisor.endpoint}`);
+    state.output(`Stopping ${state.name} on node ${state.nodePath[state.currentNode]}`);
 
     // Clear all currently running intervals
     state.intervals.forEach((element) => {
@@ -74,17 +69,29 @@ function Agent({
                 token: "AReallyLongRandomAndUniqueTokenForAuth",
                 payload: serialize(this)
             })
-            .then((res) => {
-                // console.log(`statusCode: ${res.status}`)
+            .catch((error) => {
+                console.error(error)
+            })
+        },
+        dispatch: function() {
+            this.output(`Dispatching ${this.name} from supervisor node ${this.supervisor.endpoint}`);
+
+            this.currentNode = 0;
+            const nextNode = this.nodePath[this.currentNode];
+
+            axios.post(nextNode, {
+                token: "AReallyLongRandomAndUniqueTokenForAuth",
+                payload: serialize(this)
             })
             .catch((error) => {
                 console.error(error)
             })
         },
-        dispatch: () => agent.move(), //Dispatch is currently an alias for move
         output: function(text) {
             const url = `${this.supervisor.endpoint}/console`;
             const time = new Date().toLocaleTimeString();
+
+            // If state.output is used on a Worker node, console.log to the worker node what is being sent.
             if(this.currentNode >= 0)
                 console.log(`state.output: Worker${this.currentNode} - ${time} | ${text}`);
 
