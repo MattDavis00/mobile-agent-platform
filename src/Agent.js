@@ -117,9 +117,6 @@ function Agent({
                 text,
                 workerID: this.currentNode
             })
-            .then((res) => {
-                // console.log(`statusCode: ${res.status}`)
-            })
             .catch((error) => {
                 console.error(error)
             })

@@ -131,3 +131,89 @@ Worker 1 - 20:12:35 | Stopping Example Agent on node http://localhost:4001/agent
 Worker 2 - 20:12:36 | Counter: 3
 Worker 2 - 20:12:37 | Stopping Example Agent on node http://localhost:4002/agent
 ```
+
+## Adding Custom Methods:
+
+Custom methods can be added by adding your method to the `methods` attribute like so.
+That method can then be called by using `state.methods.NAME`.
+
+```javascript
+let agent = Agent({
+    supervisor,
+    name: "Old Name",
+    nodePath: ['http://localhost:4000/agent', 'http://localhost:4001/agent', 'http://localhost:4002/agent', 'http://localhost:4003/agent', 'http://localhost:4004/agent'],
+    main: (state, args) => {
+
+        // Change the name to "New Name" when the agent has reached the 3rd node.
+        if (state.currentNode === 2)
+            state.methods.changeName(state, "New Name");
+        
+        // Print the Agent's current name.
+        state.output(`The Agent's current name is ${state.name}`)
+        
+        //Move to the next node after 2 seconds
+        state.setTimeout(() => state.move(), 2000);
+    },
+    methods: {
+        changeName: function(state, newName) {
+            state.name = newName;
+        }
+    }
+});
+```
+
+### Expected Output:
+
+```
+Supervisor - 18:40:43 | Dispatching Old Name from supervisor node http://localhost:3000
+Worker 0 - 18:40:43 | The Agent's current name is Old Name
+Worker 0 - 18:40:45 | Stopping Old Name on node http://localhost:4000/agent
+Worker 1 - 18:40:45 | The Agent's current name is Old Name
+Worker 1 - 18:40:47 | Stopping Old Name on node http://localhost:4001/agent
+Worker 2 - 18:40:47 | The Agent's current name is New Name
+Worker 2 - 18:40:49 | Stopping New Name on node http://localhost:4002/agent
+Worker 3 - 18:40:49 | The Agent's current name is New Name
+Worker 3 - 18:40:51 | Stopping New Name on node http://localhost:4003/agent
+Worker 4 - 18:40:51 | The Agent's current name is New Name
+Worker 4 - 18:40:53 | Stopping New Name on node http://localhost:4004/agent
+```
+
+## Overriding Default Agent Methods:
+
+If you wish to override some of the already implemented methods such as init or stop you can do so by passing these as attributes to the constructor.
+
+### Example:
+```javascript
+let agent = Agent({
+    supervisor,
+    name: "Example Agent",
+    nodePath: ['http://localhost:4000/agent', 'http://localhost:4001/agent', 'http://localhost:4002/agent', 'http://localhost:4003/agent', 'http://localhost:4004/agent'],
+    main: (state, args) => {
+
+        state.output("Ran main!");
+        
+        //Move to the next node after 2 seconds
+        state.setTimeout(() => state.move(), 2000);
+    },
+    init: function(state, args) {
+        state.output("Custom init....");
+        state.main();
+    }
+});
+```
+
+### Expected Output:
+```
+Supervisor - 19:31:55 | Dispatching Example Agent from supervisor node http://localhost:3000
+Worker 0 - 19:31:55 | Ran main!
+Worker 0 - 19:31:55 | Custom init....
+Worker 0 - 19:31:57 | Stopping Example Agent on node http://localhost:4000/agent
+Worker 1 - 19:31:57 | Custom init....
+Worker 1 - 19:31:57 | Ran main!
+Worker 1 - 19:31:59 | Stopping Example Agent on node http://localhost:4001/agent
+Worker 2 - 19:31:59 | Custom init....
+Worker 2 - 19:31:59 | Ran main!
+Worker 2 - 19:32:01 | Stopping Example Agent on node http://localhost:4002/agent
+.....
+Continues
+```
