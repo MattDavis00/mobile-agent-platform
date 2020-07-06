@@ -8,6 +8,9 @@ Install:
 ## Example Usage:
 ### Supervisor Node:
 
+The following example shows how to declare an `Agent` that will traverse across 5 nodes.
+Upon executing on each node it will display a "Running" message, before moving to the next node after 2 seconds.
+
 ```javascript
 const {Supervisor, Agent} = require('mobile-agent-platform');
 
@@ -31,11 +34,8 @@ let agent = Agent({
     ],
     // The main method that gets called when the Agent is initialized
     main: (state, args) => {
-        //Output every second
-        state.setInterval(() => {
-            //Output to the Supervisor node console
-            state.output(`Running ${state.name} on node ${state.nodePath[state.currentNode]} with id ${state.currentNode}`);
-        }, 1000)
+        //Output to the Supervisor node console
+        state.output(`Running ${state.name} on node ${state.nodePath[state.currentNode]} with id ${state.currentNode}`);
 
         //Move to the next node after 2 seconds
         state.setTimeout(() => state.move(), 2000);
