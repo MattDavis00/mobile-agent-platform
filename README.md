@@ -81,6 +81,17 @@ Worker2 - 18:49:40 | Running Example Agent on node http://192.168.100.3:4000/age
 Path is cyclic in nature by default
 ```
 
+## Authentication:
+The package makes use of JSON Web Tokens to verify that an `Agent` being received at a `Worker` node has not been tampered with, and is coming from a verified source.
+For this to work, every node (including both `Supervisor` and `Worker` nodes) must have a shared `TOKEN_SECRET` environment variable.
+Within the main directory of your project you must have a `.env` file containing the following.
+
+`.env` file:
+```
+# We recommend choosing a strong secret for example:
+TOKEN_SECRET:OFhvMqCBvh9XrkAbOKEjUmy3PW02jA9gOB8u3hAo0VVSsvQ0oNioeiiEiuJSyZWPRoI6ETa824p9HWr7W6T8XCL60jr9z2cSYH8YfJflaP15ea0YiKiHlSHmgD91L9Y0
+```
+
 ## Persistent Store Example:
 
 `state.declareStore({key: value, key: value, key: value})` can be used to declare a new variable that will persist across nodes.
