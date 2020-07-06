@@ -26,7 +26,9 @@
   "homepage": "https://github.com/MattDavis00/mobile-agent-platform#readme",
   "dependencies": {
     "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "serialize-javascript": "^4.0.0"
   }
 }

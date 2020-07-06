@@ -1,5 +1,7 @@
 const axios = require('axios');
 const serialize = require('serialize-javascript');
+const jwt = require('jsonwebtoken');
+require('dotenv').config()
 
 const Supervisor = require('./Supervisor');
 
@@ -28,6 +30,32 @@ function defaultStop(state, args) {
     state.timeouts = [];
 }
 
+function transferAgent(state, args) {
+    state.currentNode = (state.currentNode + 1) % state.nodePath.length;
+    const nextNode = state.nodePath[state.currentNode];
+    const payload = serialize(state);
+
+    if (typeof process.env.TOKEN_SECRET === "undefined" || process.env.TOKEN_SECRET === null) {
+        state.output("TOKEN_SECRET is not defined in the .env file.");
+        throw new Error("TOKEN_SECRET is not defined in the .env file.");
+    }
+
+    const token = jwt.sign({
+        data: payload
+    }, process.env.TOKEN_SECRET, { expiresIn: '5s' });
+
+    axios.post(nextNode, {
+        token
+    })
+    .catch((error) => {
+        state.currentNode = (state.currentNode - 1) % state.nodePath.length;
+        console.error(error)
+        if(error.response.status === 403) {
+            state.output(`Worker${state.currentNode + 1} rejected Agent transfer request due to bad jwt`)
+        }
+    })
+}
+
 function Agent({
         supervisor = Supervisor(),
         name = "Default Agent",
@@ -43,6 +71,7 @@ function Agent({
             main,
             init,
             stop,
+            transferAgent,
             ...methods
         },
         supervisor, //Information about the supervisor
@@ -63,31 +92,18 @@ function Agent({
         },
         move: function() {
             this.stop();
-            
-            this.currentNode = (this.currentNode + 1) % this.nodePath.length;
-            const nextNode = this.nodePath[this.currentNode];
 
-            axios.post(nextNode, {
-                token: "AReallyLongRandomAndUniqueTokenForAuth",
-                payload: serialize(this)
-            })
-            .catch((error) => {
-                console.error(error)
-            })
+            this.transferAgent();
+        },
+        transferAgent: function(...args) {
+            this.methods.transferAgent(this, args)
         },
         dispatch: function() {
             this.output(`Dispatching ${this.name} from supervisor node ${this.supervisor.endpoint}`);
 
-            this.currentNode = 0;
-            const nextNode = this.nodePath[this.currentNode];
+            this.currentNode = -1;
 
-            axios.post(nextNode, {
-                token: "AReallyLongRandomAndUniqueTokenForAuth",
-                payload: serialize(this)
-            })
-            .catch((error) => {
-                console.error(error)
-            })
+            this.transferAgent();
         },
         output: function(text) {
             const url = `${this.supervisor.endpoint}/console`;

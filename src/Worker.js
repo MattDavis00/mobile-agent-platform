@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 const serialize = require('serialize-javascript');
+const jwt = require('jsonwebtoken');
+require('dotenv').config()
 
 function deserialize(serializedJavascript){
     return eval('(' + serializedJavascript + ')');
@@ -15,6 +17,7 @@ function stopAll(state) {
 function Worker(port = 4000) {
     let worker = {
         app: express(),
+        port,
         agents: [],
         stopAll: () => stopAll(worker),
     };
@@ -31,17 +34,23 @@ function Worker(port = 4000) {
     
     app.post('/agent', (req, res) => {
         const data = req.body;
-
         const token = data.token;
-        const payload = deserialize(data.payload);
 
-        agents.push(payload);
+        try {
+            //Verify jwt and start Agent.
+            const verifiedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+            const payload = deserialize(verifiedToken.data);
 
-        // TODO: Verifiy integrity of payload and that it came from a known source.
-        const agent = agents[agents.length - 1];
-        agent.init(agent);
+            agents.push(payload);
 
-        res.sendStatus(200);
+            const agent = agents[agents.length - 1];
+            agent.init(agent);
+
+            res.sendStatus(200);
+        } catch (err) {
+            console.log(err);
+            res.sendStatus(403); //Send forbidden response as jwt could not be verified with secret.
+        }
 
     })
 
