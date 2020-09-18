@@ -10,7 +10,7 @@ function Supervisor(ip = "localhost", port = 3000, protocol = "http://") {
     const app = supervisor.app;
 
     // Parse body of request as a JSON object.
-    app.use(express.json());
+    app.use(express.json({limit: '50mb'}));
 
     app.get('/', (req, res) => res.send(`Supervisor listening at ${supervisor.endpoint}`));
 
@@ -24,8 +24,8 @@ function Supervisor(ip = "localhost", port = 3000, protocol = "http://") {
 
         const date = new Date();
         const time = date.toLocaleTimeString();
-        if(workerID >= 0)
-            console.log(`Worker ${workerID} - ${time} | ${text}`)
+        if (workerID >= 0)
+            console.log(`Worker ${workerID} - ${time} | `, text)
         else
             console.log(`Supervisor - ${time} | ${text}`)
 

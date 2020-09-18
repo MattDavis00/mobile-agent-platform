@@ -14,11 +14,17 @@ function stopAll(state) {
     });
 }
 
-function Worker(port = 4000) {
+function Worker
+    ({
+        port = 4000,
+        dependencies = {}
+    }) {
+
     let worker = {
         app: express(),
         port,
         agents: [],
+        dependencies,
         stopAll: () => stopAll(worker),
     };
 
@@ -30,7 +36,7 @@ function Worker(port = 4000) {
     app.listen(port, () => console.log(`Worker listening at http://localhost:${port}`));
 
     // Parse body of request as a JSON object.
-    app.use(express.json());
+    app.use(express.json({limit: '50mb'}));
     
     app.post('/agent', (req, res) => {
         const data = req.body;
@@ -44,7 +50,7 @@ function Worker(port = 4000) {
             agents.push(payload);
 
             const agent = agents[agents.length - 1];
-            agent.init(agent);
+            agent.init({dependencies});
 
             res.sendStatus(200);
         } catch (err) {

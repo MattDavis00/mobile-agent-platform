@@ -10,8 +10,9 @@ function defaultMain(state, args) {
     console.log("For example: let agent = Agent({main: (state) => console.log(state.name));");
 }
 
-function defaultInit(state, args) {
+function defaultInit(state, args = {}) {
     console.log("Running init.....")
+    state.dependencies = args.dependencies;
     state.main();
 }
 
@@ -49,7 +50,7 @@ function transferAgent(state, args) {
     })
     .catch((error) => {
         state.currentNode = (state.currentNode - 1) % state.nodePath.length;
-        console.error(error)
+        // console.error(error.response)
         if(error.response.status === 403) {
             state.output(`Worker${state.currentNode + 1} rejected Agent transfer request due to bad jwt`)
         }
@@ -74,6 +75,7 @@ function Agent({
             transferAgent,
             ...methods
         },
+        dependencies: {},
         supervisor, //Information about the supervisor
         name,
         nodePath,
@@ -111,7 +113,7 @@ function Agent({
 
             // If state.output is used on a Worker node, console.log to the worker node what is being sent.
             if(this.currentNode >= 0)
-                console.log(`state.output: Worker${this.currentNode} - ${time} | ${text}`);
+                console.log(`state.output: Worker${this.currentNode} - ${time} | `, text);
 
             axios.post(url, {
                 text,
@@ -129,7 +131,7 @@ function Agent({
             const timeoutID = setTimeout(callback, delay);
             this.timeouts.push(timeoutID);
         },
-        init: function(...args) {
+        init: function(args = {}) {
             this.methods.init(this, args)
         },
         stop: function(...args) {
