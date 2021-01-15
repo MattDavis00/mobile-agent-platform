@@ -51,8 +51,10 @@ function transferAgent(state, args) {
     .catch((error) => {
         state.currentNode = (state.currentNode - 1) % state.nodePath.length;
         // console.error(error.response)
-        if(error.response.status === 403) {
+        if (error?.response?.status === 403) {
             state.output(`Worker${state.currentNode + 1} rejected Agent transfer request due to bad jwt`)
+        } else {
+            state.output(`Worker${state.currentNode} could not establish a network connection with the next node`)
         }
     })
 }
