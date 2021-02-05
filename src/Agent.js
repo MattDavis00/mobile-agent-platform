@@ -43,7 +43,7 @@ function transferAgent(state, args) {
 
     const token = jwt.sign({
         data: payload
-    }, process.env.TOKEN_SECRET, { expiresIn: '5s' });
+    }, process.env.TOKEN_SECRET, { expiresIn: '10s' });
 
     axios.post(nextNode, {
         token

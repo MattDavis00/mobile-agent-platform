@@ -30,14 +30,12 @@ function Worker
 
     const app = worker.app;
     const agents = worker.agents;
+    
+    // Parse body of request as a JSON object.
+    app.use(express.json({limit: '50mb'}));
 
     app.get('/', (req, res) => res.send(`Worker listening at http://localhost:${port}`));
 
-    app.listen(port, () => console.log(`Worker listening at http://localhost:${port}`));
-
-    // Parse body of request as a JSON object.
-    app.use(express.json({limit: '50mb'}));
-    
     app.post('/agent', (req, res) => {
         const data = req.body;
         const token = data.token;
@@ -59,6 +57,8 @@ function Worker
         }
 
     })
+
+    app.listen(port, () => console.log(`Worker listening at http://localhost:${port}`));
 
     return worker;
 }
